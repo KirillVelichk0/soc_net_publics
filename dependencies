@@ -1,0 +1,4 @@
+grpcio
+python3-mysqlconnector
+django
+uvicorn for server
