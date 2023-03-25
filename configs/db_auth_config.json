@@ -1,0 +1,7 @@
+{
+    "DB_NAME" : "Soc_net_publics",
+    "USER": "root",
+    "PATH_TO_PASSWORD": "/home/kirill/private/mySqlPassw.json",
+    "HOST":"localhost",
+    "PORT":3306
+}

@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-
+from publics.DBMaster import cofigure_from_json
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -72,11 +72,16 @@ WSGI_APPLICATION = 'publics.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
+db_data = cofigure_from_json(BASE_DIR)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': db_data[0],
+        'USER': db_data[1],
+        'PASSWORD': db_data[2],
+        'HOST': db_data[3],   # Or an IP Address that your DB is hosted on
+        'PORT': db_data[4]
+        
     }
 }
 
