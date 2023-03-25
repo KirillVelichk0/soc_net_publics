@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>METANIT.COM</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <div id="message"></div>
+     <p>
+        Введите jwt: <br /> 
+        <input name="jwt" id="jwt" />
+    </p>
+     <p>
+        Введите предел: <br /> 
+        <input name="before" id="before" type="number" />
+    </p>
+    <button onclick="send()">Отправить</button>
+<script>
+    async function send(){
+ 
+        // получаем введеные в поля имя и возраст
+        const jwt = document.getElementById("jwt").value;
+        before = document.getElementById("before").value;
+ 	if (before == -1)
+ 	{
+ 		before = null
+ 	}
+        // отправляем запрос
+        const response = await fetch("/groups", {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    jwt: jwt,
+                    before: before,
+                    limit:20
+                })
+            });
+            const data = await response.json();
+            if (response.ok) { 
+                document.getElementById("message").textContent = data.message;
+            }
+            else
+            {
+                document.getElementById("message").textContent = data.error;
+            }
+    }
+</script>
+</body>
+</html>

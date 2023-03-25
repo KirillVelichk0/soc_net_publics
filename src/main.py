@@ -1,16 +1,17 @@
-from fastapi.responses import JSONResponse
-from fastapi.responses import HTMLResponse
+from fastapi.responses import JSONResponse, FileResponse
 from application import app
-from DBMaster import db_master_instance
-
+from GroupsMaster import GroupsRequest
+from fastapi import Request
 
         
 @app.get("/")
-async def read_root():
-    html_content = "<h2>Hello somebody!</h2>"
-    return HTMLResponse(content=html_content)
+async def root():
+    return FileResponse("public/test.html")
 
-@app.get("/1")
-async def get_test_1():
-    result = await db_master_instance.get_publics_limited(20, 13)
-    return JSONResponse({"message":[public_name for public_name in result]})
+@app.post("/groups")
+async def get_groups(request: GroupsRequest):
+    try:
+        result = await request.get_groups_from_self()
+        return JSONResponse({"message":[public_name for public_name in result[0]], "new_jwt": result[1]})
+    except Exception as ex:
+        return JSONResponse({"error": str(ex)}, status_code=401)
