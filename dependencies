@@ -1,4 +1,4 @@
 grpcio
 python3-mysqlconnector
-django
+flask
 uvicorn for server
