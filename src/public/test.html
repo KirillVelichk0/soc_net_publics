@@ -14,7 +14,42 @@
         Введите предел: <br /> 
         <input name="before" id="before" type="number" />
     </p>
+     <p>
+        Введите название: <br /> 
+        <input name="public_name" id="public_name"/>
+    </p>
     <button onclick="send()">Отправить</button>
+    <button onclick="send_name()">Отправить_название</button>
+<script>
+        async function send_name(){
+     
+            // получаем введеные в поля имя и возраст
+            const name = document.getElementById("public_name").value;
+            before = document.getElementById("before").value;
+         if (before == -1)
+         {
+             before = null
+         }
+            // отправляем запрос
+            const response = await fetch("/publics", {
+                    method: "POST",
+                    headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        public_name: name,
+                        before: before,
+                        limit:20
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) { 
+                    document.getElementById("message").textContent = data.message;
+                }
+                else
+                {
+                    document.getElementById("message").textContent = data.error;
+                }
+        }
+</script>
 <script>
     async function send(){
  
@@ -26,7 +61,7 @@
  		before = null
  	}
         // отправляем запрос
-        const response = await fetch("/groups", {
+        const response = await fetch("/user_publics", {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({ 

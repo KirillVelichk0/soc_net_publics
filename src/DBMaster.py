@@ -19,7 +19,7 @@ class DBMaster:
         result = await session.execute(query)
         await session.commit()
         await session.close()
-        return result.fetchall()
+        return result.mappings()
     
     async def get_publics_limited_before(self, before_id: int, limit: int, user_id:int):
         session = self.local_session()
@@ -30,9 +30,27 @@ class DBMaster:
         result = await session.execute(query)
         await session.commit()
         await session.close()
-        return result.fetchall()
+        return result.mappings()
         
-  
+    
+    async def get_publics_limited_from_name(self, public_name: str, limit: int):
+        session = self.local_session()
+        query = select(models.Public).where(models.Public.public_name == public_name)\
+            .order_by(models.Public.p_id.desc()).limit(limit)
+        result = await session.execute(query)
+        await session.commit()
+        await session.close()
+        return result.scalars().all()
+    
+    async def get_publics_limited_before_from_name(self, public_name: str, limit: int, before_id: int):
+        session = self.local_session()
+        query = select(models.Public)\
+            .where(models.Public.public_name == public_name and before_id > models.Public.p_id)\
+            .order_by(models.Public.p_id.desc()).limit(limit)
+        result = await session.execute(query)
+        await session.commit()
+        await session.close()
+        return result.scalars().all()
   
   
 db_master_instance = DBMaster()  
