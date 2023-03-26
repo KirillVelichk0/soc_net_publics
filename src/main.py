@@ -12,6 +12,6 @@ async def root():
 async def get_groups(request: GroupsRequest):
     try:
         result = await request.get_groups_from_self()
-        return JSONResponse({"message":[public_name for public_name in result[0]], "new_jwt": result[1]})
+        return JSONResponse({"message":[[public[0], public[1]] for public in result[0]], "new_jwt": result[1]})
     except Exception as ex:
         return JSONResponse({"error": str(ex)}, status_code=401)

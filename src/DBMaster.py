@@ -12,25 +12,25 @@ class DBMaster:
         
     async def get_publics_limited(self, limit: int, user_id: int):
         session = self.local_session()
-        query = select(models.Public.public_name)\
+        query = select(models.Public.public_name, models.Public.p_id)\
             .join(models.PublicsSubscriber.public_id, models.Public.p_id == models.PublicsSubscriber.public_id)\
             .where(models.PublicsSubscriber.u_id == user_id)\
             .order_by(models.PublicsSubscriber.public_id.desc()).limit(limit)
         result = await session.execute(query)
         await session.commit()
         await session.close()
-        return result.scalars().all()
+        return result.fetchall()
     
     async def get_publics_limited_before(self, before_id: int, limit: int, user_id:int):
         session = self.local_session()
-        query = select(models.Public.public_name)\
+        query = select(models.Public.public_name, models.Public.p_id)\
             .join(models.PublicsSubscriber.public_id, models.Public.p_id == models.PublicsSubscriber.public_id)\
             .where(models.PublicsSubscriber.u_id == user_id and models.PublicsSubscriber.public_id < before_id)\
             .order_by(models.PublicsSubscriber.public_id.desc()).limit(limit)
         result = await session.execute(query)
         await session.commit()
         await session.close()
-        return result.scalars().all()
+        return result.fetchall()
         
   
   
