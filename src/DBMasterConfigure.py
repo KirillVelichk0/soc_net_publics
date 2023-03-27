@@ -1,5 +1,7 @@
 import json
 from sqlalchemy.future import select
+import databases
+from application import app
 from pathlib import Path
 from sqlalchemy.ext.asyncio import create_async_engine
 def cofigure_from_json(base_dir: Path) -> tuple:
@@ -22,8 +24,19 @@ def cofigure_from_json(base_dir: Path) -> tuple:
 def create_db_url():
       db_data = cofigure_from_json(Path(__file__).parent.parent.resolve()) 
       return f"mysql+aiomysql://{db_data[1]}:{db_data[2]}@{db_data[3]}:{db_data[4]}/{db_data[0]}" 
-  
-db_engine = create_async_engine(create_db_url(), echo=True)
+db_url = create_db_url()
+db_engine = create_async_engine(db_url, echo=True)
+db_instanse = databases.Database(db_url)
+
+#до лучших времен
+"""@app.on_event("startup")
+async def startup():
+    await db_instanse.connect()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await db_instanse.disconnect()"""
 
         
         

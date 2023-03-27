@@ -2,7 +2,7 @@ from sqlalchemy.future import select
 import models 
 from sqlalchemy.ext.asyncio import  AsyncSession
 from sqlalchemy.orm import sessionmaker
-from DBMasterConfigure import db_engine
+from DBMasterConfigure import db_engine, db_instanse
 from sqlalchemy import and_, or_
 
 parse_model_row = lambda row : {c.name: getattr(row, c.name) for c in row.__table__.columns}
@@ -81,13 +81,20 @@ class DBMaster:
         query = select(models.PublicsSubscriber.u_id).\
             where(and_(u_id_in == models.PublicsSubscriber.u_id, public_id_in == models.PublicsSubscriber.public_id))
         live_row = await session.execute(query)
-        live_row = live_row.first()
-        if live_row is None:
-            query = models.PublicsSubscriber.insert().values(u_id = u_id_in, public_id = public_id_in)
+        print("sub executed")
+        if len(live_row.scalars().all()) == 0:
+            print("Dont subbed")
+            query = models.publics_subscribers.insert().values(u_id = u_id_in, public_id = public_id_in)
+            print('query created')
             await session.execute(query)
+            print('query execured')
             await session.commit()
+            print('query commited')
             await session.close()
+            print('query closed')
         else:
+            
+            print("exception raised")
             raise RowExistingProblem('Пользователь уже подписан на эту группу')
         
     
@@ -97,9 +104,9 @@ class DBMaster:
         query = select(models.PublicsSubscriber.u_id).\
             where(and_(u_id_in == models.PublicsSubscriber.u_id, public_id_in == models.PublicsSubscriber.public_id))
         live_row = await session.execute(query)
-        live_row = live_row.first()
-        if live_row is not None:
-            query = models.PublicsSubscriber.delete().where(and_(u_id_in == models.PublicsSubscriber.u_id, public_id_in == models.PublicsSubscriber.public_id))
+        print("sub executed")
+        if len(live_row.scalars().all()) != 0:
+            query = models.publics_subscribers.delete().where(and_(u_id_in == models.PublicsSubscriber.u_id, public_id_in == models.PublicsSubscriber.public_id))
             await session.execute(query)
             await session.commit()
             await session.close()
