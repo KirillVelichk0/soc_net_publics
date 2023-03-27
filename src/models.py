@@ -4,13 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 metadata = Base.metadata
 
-publics_subscribers = Table(
-    'publics_subscribers',
-    metadata,
-    Column('public_id', ForeignKey('publics.p_id'), primary_key=True, nullable=False, index=True),
-    Column('u_id',BigInteger, primary_key=True, nullable=False, index=True),
 
-)
 class Public(Base):
     __tablename__ = 'publics'
 

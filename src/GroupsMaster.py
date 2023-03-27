@@ -1,4 +1,4 @@
-from DBMaster import db_master_instance
+from DBMaster import db_master_instance, RowExistingProblem
 from GRPCClient import auth
 from pydantic import BaseModel
 class UserGroupsRequest(BaseModel):
@@ -37,8 +37,13 @@ class TrySub_Unsub(BaseModel):
     
     async def try_sub_unsub_from_self(self):
         id, new_jwt = await auth(self.jwt)
-        if self.sub:
-            await db_master_instance.subsribe_to_public(self.public_id, id)
-        else:
-            await db_master_instance.describe_from_public(self.public_id, id)
+        try:
+            if self.sub:
+                await db_master_instance.subsribe_to_public(self.public_id, id)
+            else:
+                await db_master_instance.describe_from_public(self.public_id, id)
+        except RowExistingProblem as ex:
+            raise ex
+        except Exception as ex:
+            raise ex
         return new_jwt
