@@ -40,14 +40,21 @@
                         limit:20
                     })
                 });
-                const data = await response.json();
-                if (response.ok) { 
-                    document.getElementById("message").textContent = data.message;
+                const status= await response.status;
+                if(status == 204){
+                    document.getElementById("message").textContent = "Not found"
                 }
-                else
-                {
-                    document.getElementById("message").textContent = data.error;
+                else{
+                    const data = await response.json()
+                    if (response.ok) { 
+                        document.getElementById("message").textContent = data.message;
+                    }
+                    else
+                    {
+                        document.getElementById("message").textContent = data.error;
+                    }
                 }
+                
         }
 </script>
 <script>
@@ -70,14 +77,20 @@
                     limit:20
                 })
             });
-            const data = await response.json();
-            if (response.ok) { 
-                document.getElementById("message").textContent = data.message;
-            }
-            else
-            {
-                document.getElementById("message").textContent = data.error;
-            }
+            const status= await response.status;
+                if(status == 204){
+                    document.getElementById("message").textContent = "Not found"
+                }
+                else{
+                    const data = await response.json()
+                    if (response.ok) { 
+                        document.getElementById("message").textContent = data.message;
+                    }
+                    else
+                    {
+                        document.getElementById("message").textContent = data.error;
+                    }
+                }
     }
 </script>
 </body>

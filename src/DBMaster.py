@@ -3,6 +3,16 @@ import models
 from sqlalchemy.ext.asyncio import  AsyncSession
 from sqlalchemy.orm import sessionmaker
 from DBMasterConfigure import db_engine
+from sqlalchemy import and_, or_
+
+parse_model_row = lambda row : {c.name: getattr(row, c.name) for c in row.__table__.columns}
+
+def get_parse_model_and_return(result):
+    result = result.scalars().all()
+    result = [parse_model_row(data_row) for data_row in result]
+    return result
+
+
 class DBMaster:
     def __init__(self):
         self.local_session = sessionmaker(expire_on_commit=False, bind=db_engine, class_= AsyncSession)
@@ -25,7 +35,7 @@ class DBMaster:
         session = self.local_session()
         query = select(models.Public.public_name, models.Public.p_id)\
             .join(models.PublicsSubscriber.public_id, models.Public.p_id == models.PublicsSubscriber.public_id)\
-            .where(models.PublicsSubscriber.u_id == user_id and models.PublicsSubscriber.public_id < before_id)\
+            .where(and_(models.PublicsSubscriber.u_id == user_id, models.PublicsSubscriber.public_id < before_id))\
             .order_by(models.PublicsSubscriber.public_id.desc()).limit(limit)
         result = await session.execute(query)
         await session.commit()
@@ -35,22 +45,24 @@ class DBMaster:
     
     async def get_publics_limited_from_name(self, public_name: str, limit: int):
         session = self.local_session()
+        print("without before ")
         query = select(models.Public).where(models.Public.public_name == public_name)\
             .order_by(models.Public.p_id.desc()).limit(limit)
         result = await session.execute(query)
         await session.commit()
         await session.close()
-        return result.scalars().all()
+        return get_parse_model_and_return(result)
     
     async def get_publics_limited_before_from_name(self, public_name: str, limit: int, before_id: int):
         session = self.local_session()
+        print(f"with before {before_id}")
         query = select(models.Public)\
-            .where(models.Public.public_name == public_name and before_id > models.Public.p_id)\
+            .where(and_(models.Public.public_name == public_name, before_id > models.Public.p_id))\
             .order_by(models.Public.p_id.desc()).limit(limit)
         result = await session.execute(query)
         await session.commit()
         await session.close()
-        return result.scalars().all()
+        return get_parse_model_and_return(result)
   
   
 db_master_instance = DBMaster()  
