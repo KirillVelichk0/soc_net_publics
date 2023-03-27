@@ -2,7 +2,7 @@ from fastapi.responses import JSONResponse, FileResponse, Response
 from application import app
 from GroupsMaster import UserGroupsRequest, GroupsRequestFromName, TrySub_Unsub
 from DBMaster import RowExistingProblem
-        
+main_app = app       
 @app.get("/")
 async def root():
     return FileResponse('public/test.html')

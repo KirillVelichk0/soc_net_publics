@@ -1,7 +1,6 @@
 from sqlalchemy import BigInteger, Column, ForeignKey, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-
 Base = declarative_base()
 metadata = Base.metadata
 
@@ -14,9 +13,6 @@ class Public(Base):
     public_name = Column(String(20), index=True)
     public_readme = Column(String(200))
 
-    async def __repr__(self):
-        return f'<Public(p_id={self.p_id}, author_id={self.author_id}, public_name={self.public_name},\
-            public_readme={self.public_readme})>'
 
 class Post(Base):
     __tablename__ = 'posts'

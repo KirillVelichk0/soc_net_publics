@@ -1,4 +1,4 @@
-from sqlalchemy.future import select, insert
+from sqlalchemy.future import select
 import models 
 from sqlalchemy.ext.asyncio import  AsyncSession
 from sqlalchemy.orm import sessionmaker
