@@ -28,3 +28,17 @@ class GroupsRequestFromName(BaseModel):
                 , self.limit, self.before)
         return result
     
+    
+class TrySub_Unsub(BaseModel):
+    jwt: str
+    public_id: int
+    sub: bool
+    
+    
+    async def try_sub_unsub_from_self(self):
+        id, new_jwt = await auth(self.jwt)
+        if self.sub:
+            await db_master_instance.subsribe_to_public(self.public_id, id)
+        else:
+            await db_master_instance.describe_from_public(self.public_id, id)
+        return new_jwt
