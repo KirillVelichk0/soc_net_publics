@@ -3,7 +3,7 @@ import models
 from sqlalchemy.ext.asyncio import  AsyncSession
 from sqlalchemy.orm import sessionmaker
 from DBMasterConfigure import db_engine, db_instanse
-from sqlalchemy import and_, or_, insert, delete
+from sqlalchemy import and_, or_, insert, delete, update
 
 parse_model_row = lambda row : {c.name: getattr(row, c.name) for c in row.__table__.columns}
 class RowExistingProblem(Exception):
@@ -115,5 +115,104 @@ class DBMaster:
         else:
             await session.close()
             raise RowExistingProblem('Пользователь не подписан на эту группу')
+        
+     #Все, что ниже, пока не протестировано   
+    async def get_my_authored_publics(self, author_id: int):
+        session = self.local_session()
+        query = select(models.Public).where(models.Public.author_id == author_id)
+        result = await session.execute(query)
+        await session.commit()
+        await session.close()
+        return get_parse_model_and_return(result)
+    
+    
+    async def create_public(self, author_id_in: int, public_name_in: str, public_readme_in: str):
+        session = self.local_session()
+        new_pub = models.Public(p_id = None, author_id= author_id_in, \
+            public_name = public_name_in, public_readme = public_readme_in)
+        session.add(new_pub)
+        await session.flush()
+        await session.commit()
+        await session.close()
+        
+    async def delete_public(self, author_id_in, public_id_in):
+        session = self.local_session()
+        query = select(models.Public.p_id).\
+            where(and_(models.Public.p_id == author_id_in, models.Public.author_id == public_id_in))
+        live_row = await session.execute(query)
+        if len(live_row.scalars().all()) != 0:
+            query = delete(models.PublicsSubscriber).\
+                where(models.PublicsSubscriber.public_id == public_id_in)
+            await session.execute(query)
+            query = delete(models.Public).\
+                where(models.Public.p_id == public_id_in)
+            await session.execute(query)
+            await session.commit()
+            await session.close()
+        else:
+           raise RowExistingProblem('Uncorrect public data') 
+        
+        
+    async def get_public_from_id(self, public_id_in: int):
+        session = self.local_session()
+        query = select(models.Public).where(models.Public.p_id == public_id_in)
+        result = await session.execute(query)
+        await session.commit()
+        await session.close()
+        return get_parse_model_and_return(result)
+    
+    
+    async def redact_public_head(self, public_id_in:int, public_name_in: str,
+                                 public_readme_in: str, author_id_in: int):
+        session = self.local_session()
+        query = select(models.Public.p_id).\
+            where(and_(models.Public.p_id == author_id_in, models.Public.author_id == public_id_in))
+        live_row = await session.execute(query)
+        if len(live_row.scalars().all()) != 0:
+            query = update(models.Public).\
+            where(models.Public.id == public_id_in).\
+            values(public_name= public_name_in, public_readme = public_readme_in)
+            await session.execute(query)
+            await session.commit()
+            await session.close()
+            ...
+        else:
+             raise RowExistingProblem('Uncorrect public data') 
+         
+    async def get_last_posts(self, public_id_in: int, limit_in: int):
+        session = self.local_session()
+        query = select(models.Post).where(models.Post.public_id == public_id_in).\
+            order_by(models.Post.post_id.desc()).limit(limit_in)
+        result = await session.execute(query)
+        await session.commit()
+        await session.close()
+        return get_parse_model_and_return(result)
+    
+    
+    async def get_last_posts_before(self, public_id_in: int, limit_in: int, before_in : int):
+        session = self.local_session()
+        query = select(models.Post).\
+            where(and_(models.Post.public_id == public_id_in, models.Post.post_id < before_in)).\
+            order_by(models.Post.post_id.desc()).limit(limit_in)
+        result = await session.execute(query)
+        await session.commit()
+        await session.close()
+        return get_parse_model_and_return(result)
+    
+    async def send_post(self, public_id_in: int, author_id_in: int, text_data_in: str):
+        session = self.local_session()
+        query = select(models.Public.p_id).\
+            where(and_(models.Public.author_id == author_id_in, models.Public.p_id == public_id_in))
+        live_row = session.execute(query)
+        if len(live_row.scalars().all()) != 0:
+            new_post = models.Post(post_id = None, public_id = public_id_in, text_data = text_data_in)
+            session.add(new_post)
+            await session.flush()
+            await session.commit()
+            await session.close()
+        else:
+            await session.close()
+            raise RowExistingProblem('Вы не являетесь автором этой группы')
+        
         
 db_master_instance = DBMaster()  
