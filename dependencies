@@ -1,4 +1,8 @@
 grpcio
 python3-mysqlconnector
-flask
+aiomysql
+sqlalchemy
+httpx
+databases
+fast api
 uvicorn for server
