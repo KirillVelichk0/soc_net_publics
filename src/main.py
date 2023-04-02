@@ -1,6 +1,6 @@
 from fastapi.responses import JSONResponse, FileResponse, Response
 from application import app
-from GroupsMaster import UserGroupsRequest, GroupsRequestFromName, TrySub_Unsub
+from GroupsMaster import *
 from DBMaster import RowExistingProblem
 main_app = app       
 @app.get("/")
@@ -40,3 +40,56 @@ async def subscribe_describe(request: TrySub_Unsub):
         return Response(status_code= 405)
     except Exception:
         return Response(status_code=401)
+    
+
+@app.post('publics/authored_pubs')
+async def get_my_authored_publics(request: GetAuthoredGroupsRequest):
+    result = await request.get_authored_from_self()
+    return JSONResponse({"message": result[0], "new_jwt": result[1]})
+
+@app.post('publics/create')
+async def create_public(request: CreatePublicRequest):
+    result = await request.try_create_from_self()
+    if result is not None:
+        return JSONResponse({"message": result[0], "new_jwt": result[1]})
+    else:
+        return JSONResponse({"error": 'Uncorrect auth data'}, status_code=401)
+
+    
+@app.post('publics/delete')
+async def delete_public(request: DeletePublicRequest):
+    try:
+        new_jwt = await request.delete_public_from_self()
+        return JSONResponse({"message": 'Ok', "new_jwt": new_jwt})
+    except Exception:
+        return JSONResponse({"error": 'Uncorrect auth data'}, status_code=401)
+    
+    
+@app.post('publics/from_id')
+async def get_pub_from_id(request: GetPublicRequest):
+    result = await request.get_public_from_self()
+    return JSONResponse({"message": result})
+
+
+@app.post('publics/redact')
+async def redact_public_head(request: RedactPublicHeadRequest):
+    try:
+        new_jwt = await request.redact_from_self()
+        return JSONResponse({"message": 'Ok', "new_jwt": new_jwt})
+    except Exception:
+        return JSONResponse({"error": 'Uncorrect auth data'}, status_code=401)
+    
+
+@app.post('publics/get_posts')
+async def get_posts_request(request: GetPostsRequest):
+    result = await request.get_posts_from_self()
+    return JSONResponse({"message": result})
+
+
+@app.post('publics/create_post')
+async def create_post(request: SendPostRequest):
+    try:
+        new_jwt = await request.send_post_from_self()
+        return JSONResponse({"message": 'Ok', "new_jwt": new_jwt})
+    except Exception:
+        return JSONResponse({"error": 'Uncorrect auth data'}, status_code=401)

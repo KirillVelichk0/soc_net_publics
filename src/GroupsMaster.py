@@ -131,6 +131,8 @@ class CreatePublicRequest(BaseModel):
     
     async def try_create_from_self(self):
         id, new_jwt = await auth(self.jwt)
+        if id == -1:
+            return None
         await db_master_instance.create_public(id, self.public_name, self.public_readme)
         return new_jwt
     
