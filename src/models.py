@@ -1,6 +1,7 @@
 from sqlalchemy import BigInteger, Column, ForeignKey, String, Text, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from DBMasterConfigure import db_engine
 Base = declarative_base()
 metadata = Base.metadata
 
@@ -32,4 +33,8 @@ class PublicsSubscriber(Base):
 
     public = relationship('Public')
 
-    
+
+async def CreateDb():
+    async with db_engine.begin() as conn:
+            await conn.run_sync(metadata.create_all)
+

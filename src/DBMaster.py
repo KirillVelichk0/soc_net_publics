@@ -1,6 +1,7 @@
 from sqlalchemy.future import select
 import models 
 from sqlalchemy.ext.asyncio import  AsyncSession
+import asyncio
 from sqlalchemy.orm import sessionmaker
 from DBMasterConfigure import db_engine, db_instanse
 from sqlalchemy import and_, or_, insert, delete, update
@@ -27,8 +28,10 @@ def get_parse_model_and_return(result):
 
 class DBMaster:
     def __init__(self):
+        
         self.local_session = sessionmaker(expire_on_commit=False, bind=db_engine, class_= AsyncSession)
     
+
     def __del__(self):
         self.local_session.close_all()
         
@@ -215,4 +218,4 @@ class DBMaster:
             raise RowExistingProblem('Вы не являетесь автором этой группы')
         
         
-db_master_instance = DBMaster()  
+db_master_instance = DBMaster() 
